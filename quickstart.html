@@ -12,7 +12,8 @@
      style="z-index: 999; position:absolute;border: 1px solid;border-radius: 5px; width:320px;height:160px;left:50%;margin-left:-160px;background-color: white;margin-top: 200px; ">
     <div id="invitInfo" style="width:300px;height:60px;color:black;padding-top:40px;">
     </div>
-    <button style="height:30px;border: 1px solid;border-radius:3px;width:100px;cursor:pointer;" class="acceptBtn" onclick="accept()">
+    <button style="height:30px;border: 1px solid;border-radius:3px;width:100px;cursor:pointer;" class="acceptBtn"
+            onclick="accept()">
         接受
     </button>
     <button style="height:30px;border: 1px solid;border-radius:3px;width:100px;margin-left:20px;cursor:pointer;"
@@ -65,6 +66,9 @@
 <script type="text/javascript" src='https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-video.js'></script>
 <script type="text/javascript">
 
+    var machineId = 1;
+    var updateUrl = "http://localhost:9000/machine/updateMachineVideo";
+
 
     var localEl = document.getElementById('local');
     var remoteEl = document.getElementById('remote');
@@ -105,10 +109,8 @@
         incomingConversation = conversation;
 
         setTimeout(function () {
-            console.log(2)
-            console.log(localStream)
-                accept();
-        },2000);
+            accept();
+        }, 2000);
         return false;
         inviteEl.hidden = false;
         invitInfo.textContent = conversation.remoteUid + '向你发出会话邀请';
@@ -142,7 +144,6 @@
 
     var loginCb = function (user) {
         //页面操作，无关sdk
-        console.log(user.uid);
 
 
         appidText.textContent = '你的Wilddog ID：' + user.uid;
@@ -167,6 +168,20 @@
             if (snap.key() != user.uid) {
                 var removeEl = document.getElementById(snap.key());
                 userList.removeChild(removeEl);
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: false,
+            data: {"machineId": machineId, "video1": user.uid},
+            url: updateUrl,
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (data) {
+                console.log(data);
             }
         });
     }
@@ -223,6 +238,8 @@
                 console.log(err);
                 alert('请检查appid是否正确并开启匿名登录功能和实时视频服务！');
             });
+
+
     };
 
     //接受当前收到的邀请
